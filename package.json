@@ -1,0 +1,18 @@
+{
+  "name": "dev_tinder",
+  "version": "1.0.0",
+  "description": "practing_nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "backed",
+    "nodejs"
+  ],
+  "author": "Eswar Korada",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
