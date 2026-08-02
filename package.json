@@ -2,7 +2,7 @@
   "name": "dev_tinder",
   "version": "1.0.0",
   "description": "practing_nodejs",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,6 +13,7 @@
   "author": "Eswar Korada",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "mongoose": "^9.9.0"
   }
 }

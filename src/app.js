@@ -1,9 +1,11 @@
 const express = require('express');
+const connectDb = require('./config/database.js');
 
 const app = express();
 
-app.use('/get', (req, res)=>{
-    res.send('Eswar server is working now');
+connectDb().then(() => {
+    app.listen(5599);
+    console.log('server is listening..')
+}).catch((err) => {
+    console.log(err);
 })
-
-app.listen(5599);
