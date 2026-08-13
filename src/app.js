@@ -11,7 +11,6 @@ app.post('/singUp', async (req, res) => {
         const userObj = req.body;
         const user = new User(userObj);
         await user.save();
-        console.log(user.save());
         res.status(200).send("Inserted Successfully...");
     }catch(err){
         console.log(err);

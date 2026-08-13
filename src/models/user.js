@@ -3,12 +3,14 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        required: true
+        required: true,
+        minLength: [4, 'You must enter minimum of 4 charaters for first name'],
+        maxLength: [100, 'You are only allowed to enter 100 characters maximum for first name']
     },
     secondName: {
-        type : String
+        type: String
     },
-    emailId:{
+    emailId: {
         type: String,
         required: true,
         unique: true,
@@ -19,12 +21,14 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     age: {
-        type: Number
+        type: Number,
+        min: [4, 'Age must be at least 4'],
+        max: [150, 'Age cannot exceed 150']
     },
     gender: {
         type: String,
-        validate(value){
-            if(!["Male", "Female", "Others"].includes(value)){
+        validate(value) {
+            if (!["Male", "Female", "Others"].includes(value)) {
                 throw new Error("Gender data is not valid");
             }
         }
@@ -37,8 +41,8 @@ const userSchema = new mongoose.Schema({
         type: [String]
     }
 },
-{
-    timestamps: true
-});
+    {
+        timestamps: true
+    });
 
 module.exports = mongoose.model("User", userSchema);
