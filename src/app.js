@@ -2,6 +2,7 @@ const express = require('express');
 const connectDb = require('./config/database.js');
 const User = require('./models/user.js');
 const validations = require('./utils/validations.js');
+const bcrypt = require('bcrypt');
 
 const app = express();
 
@@ -12,11 +13,13 @@ app.post('/singUp', async (req, res) => {
         const userObj = req.body;
         validations(userObj);
 
+        const hashPassword = await bcrypt.hash(userObj.password, 10);
+
         const user = new User({
             firstName: userObj.firstName,
             secondName: userObj.secondName,
             emailId: userObj.emailId,
-            password: userObj.password,
+            password: hashPassword,
             age: userObj.age,
             gender: userObj.gender,
             about: userObj.about,
@@ -27,7 +30,7 @@ app.post('/singUp', async (req, res) => {
         res.status(200).send("Inserted Successfully...");
     } catch (err) {
         console.log(err);
-        res.status(500).send("Something Went Wrong...");
+        res.status(500).send("Something Went Wrong... " + err.message);
     }
 });
 
@@ -49,16 +52,16 @@ app.patch('/udateUser/:userId', async (req, res) => {
 
         const ALLOWED_KEYS = ["firstName", "secondName", "age", "gender", "about", "skills"]
 
-        const isUpdateValid = Object.keys(userObj).every((K)=>{
+        const isUpdateValid = Object.keys(userObj).every((K) => {
             return ALLOWED_KEYS.includes(K);
         })
 
 
-        if(!isUpdateValid){
+        if (!isUpdateValid) {
             throw new Error("Update is not allowed");
         }
 
-        if(userObj.skills.length > 10){
+        if (userObj.skills.length > 10) {
             throw new Error("Skills Cannot Be More Than 10")
         }
 
@@ -67,13 +70,37 @@ app.patch('/udateUser/:userId', async (req, res) => {
             runValidators: true
         });
 
-        res.status(200).send({message: "updated Success Fully", data: user});
+        res.status(200).send({ message: "updated Success Fully", data: user });
 
-    } catch(err) {
-        res.status(500).send("ERROR "+err.message);
+    } catch (err) {
+        res.status(500).send("ERROR " + err.message);
 
     }
 })
+
+app.post('/login', async (req, res) => {
+    try {
+        const credentials = req.body;
+        const getUser = await User.findOne({ emailId: credentials.emailId });
+
+        if (!getUser) {
+            return res.status(404).send({ message: "User Not Found.." });
+        }
+
+        const isPasswordValid = await bcrypt.compare(credentials.password, getUser.password);
+
+        if (isPasswordValid) {
+            res.status(200).send({ message: 'Proceed to login', data: getUser });
+        } else {
+            res.status(401).send({ message: "Invalid credentials" });
+        }
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("ERROR " + err.message);
+    }
+});
+
 
 connectDb().then(() => {
     app.listen(5599);
