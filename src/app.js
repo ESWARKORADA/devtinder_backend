@@ -3,10 +3,14 @@ const connectDb = require('./config/database.js');
 const User = require('./models/user.js');
 const validations = require('./utils/validations.js');
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+var jwt = require('jsonwebtoken');
+const {validateToken} = require('./middlewares/auth.js');
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post('/singUp', async (req, res) => {
     try {
@@ -81,16 +85,18 @@ app.patch('/udateUser/:userId', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const credentials = req.body;
-        const getUser = await User.findOne({ emailId: credentials.emailId });
+        const user = await User.findOne({ emailId: credentials.emailId });
 
-        if (!getUser) {
+        if (!user) {
             return res.status(404).send({ message: "User Not Found.." });
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, getUser.password);
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
         if (isPasswordValid) {
-            res.status(200).send({ message: 'Proceed to login', data: getUser });
+            const token = await user.getJwt();
+            res.cookie('token', token);
+            res.status(200).send({ message: 'Proceed to login', data: user });
         } else {
             res.status(401).send({ message: "Invalid credentials" });
         }
@@ -100,6 +106,20 @@ app.post('/login', async (req, res) => {
         res.status(500).send("ERROR " + err.message);
     }
 });
+
+app.get('/getProfile', validateToken, async (req, res) => {
+
+    try {
+        const decodedToken = jwt.verify(req.cookies.token, 'Eswarstark5599');
+
+        const getUser = await User.findOne({ _id: decodedToken._id });
+
+        res.status(200).send({user_data: getUser});
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("ERROR " + err.message);
+    }
+})
 
 
 connectDb().then(() => {
