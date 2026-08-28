@@ -8,7 +8,7 @@ const validateToken = async (req, res, next) => {
             throw new Error("Token Not Found..");
         }
 
-        const decodedToken = jwt.verify(token, "EswarStark5599");
+        const decodedToken = jwt.verify(token, "Eswarstark5599");
 
         const user = await User.findOne({ _id: decodedToken });
 
